@@ -17,7 +17,6 @@
         @keyframes dots { 0%, 20% { color: transparent; text-shadow: .25em 0 0 transparent, .5em 0 0 transparent;} 40% { color: white; text-shadow: .25em 0 0 transparent, .5em 0 0 transparent;} 60% { text-shadow: .25em 0 0 white, .5em 0 0 transparent;} 80%, 100% { text-shadow: .25em 0 0 white, .5em 0 0 white;}}
     </style>
 </head>
-<!-- Menambahkan overflow-hidden agar layar tidak bisa digeser-geser saat terkunci -->
 <body class="bg-gray-900 text-white font-sans min-h-screen flex flex-col items-center p-4 sm:p-8 overflow-hidden">
 
     <!-- FITUR BARU: Layar Login (Password) -->
@@ -36,7 +35,6 @@
 
     <!-- Header Aplikasi dengan Logo -->
     <div class="w-full max-w-3xl text-center mb-8 fade-in">
-        <!-- Pastikan file logo berada di folder yang sama atau gunakan URL gambar -->
         <img src="ASIX ACADEMY LOGO.png" alt="ASIX Academy Logo" class="w-24 h-24 mx-auto mb-4 rounded-full shadow-lg object-contain bg-white" onerror="this.src='https://ui-avatars.com/api/?name=ASIX+Academy&background=0D8ABC&color=fff&size=128'">
         <h1 class="text-3xl sm:text-4xl font-bold text-blue-400 mb-2">ASIX AI Prompt Generator</h1>
         <p class="text-gray-400">Create high-quality prompts for Gemini, ChatGPT, Midjourney, Stable Diffusion, DALL-E, and more.</p>
@@ -95,7 +93,7 @@
                         </button>
                     </div>
                 </div>
-                <!-- FITUR BARU: Mengubah input menjadi textarea yang tingginya otomatis menyesuaikan (auto-resize) -->
+                <!-- Textarea auto-resize -->
                 <textarea id="subject" rows="1" placeholder="Contoh: Istana bawah air yang megah terbuat dari koral dan mutiara..." oninput="autoResize(this); handleInput()" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-white focus:outline-none focus:border-blue-400 resize-none overflow-hidden min-h-[50px]"></textarea>
                 <p class="text-xs text-gray-500 mt-1 italic">Otomatis diterjemahkan ke Bahasa Inggris</p>
             </div>
@@ -106,14 +104,12 @@
                     <label class="block text-sm text-gray-300 font-semibold mb-1">Gaya Seni (Art Style)</label>
                     <select id="style" onchange="updateLighting()" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-white focus:outline-none focus:border-blue-400 appearance-none">
                         <option value="">-- Pilih Gaya --</option>
-                        <!-- Opsi akan diisi oleh JavaScript -->
                     </select>
                 </div>
                 <div>
                     <label class="block text-sm text-gray-300 font-semibold mb-1">Pencahayaan (Lighting)</label>
                     <select id="lighting" onchange="handleInput()" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-white focus:outline-none focus:border-blue-400 disabled:opacity-50 appearance-none">
                         <option value="">-- Pilih Cahaya --</option>
-                        <!-- Opsi akan diperbarui sesuai pilihan Gaya Seni -->
                     </select>
                 </div>
             </div>
@@ -161,32 +157,26 @@
     <script>
         let currentMode = 'txt2img';
         let debounceTimer;
-        let uploadedFileName = ""; // Menyimpan nama file yang diunggah
+        let uploadedFileName = ""; 
 
-        // --- FITUR BARU: Logika Auto Resize Textarea ---
         function autoResize(textarea) {
-            textarea.style.height = 'auto'; // Reset tinggi lebih dulu agar bisa menyusut
-            textarea.style.height = textarea.scrollHeight + 'px'; // Atur sesuai tinggi konten
+            textarea.style.height = 'auto'; 
+            textarea.style.height = textarea.scrollHeight + 'px'; 
         }
 
-        // --- FITUR BARU: Logika Password Layar ---
         function checkPassword() {
             const pwd = document.getElementById('app-password').value;
-            if (pwd.toLowerCase() === "asix") { // Mengizinkan "asix", "ASIX", dll
+            if (pwd.toLowerCase() === "asix") {
                 document.getElementById('login-overlay').classList.add('hidden');
-                document.body.classList.remove('overflow-hidden'); // Kembalikan fungsi scroll layar
-                sessionStorage.setItem("isLoggedIn", "true"); // Simpan ke memori sesi browser
+                document.body.classList.remove('overflow-hidden');
+                sessionStorage.setItem("isLoggedIn", "true");
             } else {
                 document.getElementById('login-error').classList.remove('hidden');
             }
         }
 
-        // Memicu tombol buka saat user menekan 'Enter' di keyboard
-        function handleLogin(event) {
-            if (event.key === 'Enter') checkPassword();
-        }
+        function handleLogin(event) { if (event.key === 'Enter') checkPassword(); }
 
-        // Database Gaya Seni & Cahaya
         const artData = [
             { name: "Photorealistic", prompt: "Photorealistic, 8k resolution, highly detailed", lights: ["Golden Hour", "Soft Daylight", "Three Point Lighting"], negative: "cartoon, illustration, low resolution, painting, fake" },
             { name: "Hyper Realistic", prompt: "Hyper realistic, unreal engine 5 render, octane render", lights: ["Softbox", "HDR", "Global Illumination"], negative: "painting, 2d, sketch, low poly" },
@@ -203,14 +193,11 @@
             { name: "Film Noir", prompt: "Film noir, 1940s, black and white, dramatic shadows", lights: ["Low Key", "Split Lighting", "Hard Side Lighting"], negative: "colorful, bright, sunny, neon" }
         ];
 
-        // 1. Inisialisasi awal saat halaman dimuat
         window.onload = function() {
-            // Cek apakah user sebelumnya sudah memasukkan password yang benar (tidak perlu login ulang jika ter-refresh)
             if (sessionStorage.getItem("isLoggedIn") === "true") {
                 document.getElementById('login-overlay').classList.add('hidden');
                 document.body.classList.remove('overflow-hidden');
             }
-
             const styleSelect = document.getElementById('style');
             artData.forEach((art, index) => {
                 let option = document.createElement('option');
@@ -220,13 +207,11 @@
             });
         };
 
-        // 2. Fungsi Mengubah Tab (Text2Img / Img2Img)
         function setMode(mode) {
             currentMode = mode;
             const tabTxt = document.getElementById('tab-txt2img');
             const tabImg = document.getElementById('tab-img2img');
             const urlContainer = document.getElementById('image-url-container');
-
             if (mode === 'txt2img') {
                 tabTxt.className = "flex-1 py-2 font-semibold text-blue-400 border-b-2 border-blue-400 transition";
                 tabImg.className = "flex-1 py-2 font-semibold text-gray-500 hover:text-gray-300 transition border-b-2 border-transparent";
@@ -239,25 +224,13 @@
             handleInput();
         }
 
-        // 3. FITUR BARU: Handle URL Input (Kosongkan file upload jika user ketik URL)
-        function handleUrlInput() {
-            if (document.getElementById('imageUrl').value.trim() !== "") {
-                removeUpload(false); // hapus preview gambar tapi jangan picu handleInput dua kali
-            }
-            handleInput();
-        }
+        function handleUrlInput() { if (document.getElementById('imageUrl').value.trim() !== "") removeUpload(false); handleInput(); }
 
-        // 4. FITUR BARU: Handle File Upload (Baca Gambar)
         function handleImageUpload(event) {
             const file = event.target.files[0];
             if (file) {
-                // Tampilkan nama file sebagai placeholder di prompt (opsional, karena biasanya AI baca gambar, tapi ini indikator visual teks)
                 uploadedFileName = "https://asix-upload.local/" + file.name.replace(/\s+/g, '_'); 
-                
-                // Kosongkan URL Text
                 document.getElementById('imageUrl').value = "";
-                
-                // Tampilkan Preview
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     document.getElementById('imagePreview').src = e.target.result;
@@ -265,141 +238,94 @@
                     document.getElementById('uploadName').textContent = "File: " + file.name;
                 }
                 reader.readAsDataURL(file);
-                
-                handleInput(); // Render prompt baru
+                handleInput();
             }
         }
 
-        // 5. FITUR BARU: Hapus Upload
         function removeUpload(triggerUpdate = true) {
-            document.getElementById('imageUpload').value = ""; // Reset input file
+            document.getElementById('imageUpload').value = ""; 
             document.getElementById('previewContainer').classList.add('hidden');
             document.getElementById('imagePreview').src = "";
             uploadedFileName = "";
-            
             if (triggerUpdate) handleInput();
         }
 
-        // 6. Update Lighting & Auto-fill Negative Prompt
         function updateLighting() {
             const styleIndex = document.getElementById('style').value;
             const lightSelect = document.getElementById('lighting');
             const negativeInput = document.getElementById('negative');
-            
             lightSelect.innerHTML = '<option value="">-- Pilih Cahaya --</option>';
-
             if (styleIndex !== "") {
                 const selectedData = artData[styleIndex];
-                
-                // Isi Opsi Cahaya
                 selectedData.lights.forEach(light => {
                     let option = document.createElement('option');
                     option.value = light;
                     option.text = light;
                     lightSelect.appendChild(option);
                 });
-                
-                // Isi Otomatis Negative Prompt
                 negativeInput.value = selectedData.negative;
             } else {
                 negativeInput.value = "";
             }
-            
             handleInput();
         }
 
-        // 7. Surprise Me
         function surpriseMe() {
-            const ideas = [
-                "Seekor kucing ksatria berbaju zirah menunggangi naga kecil",
-                "Kota metropolis masa depan melayang di atas awan",
-                "Katak menggunakan jas hujan kuning di tengah hutan neon",
-                "Perpustakaan sihir tak terbatas dengan buku beterbangan",
-                "Mobil sport klasik balapan di cincin planet Saturnus"
-            ];
-            
-            // Isi Subject
-            const randomSubject = ideas[Math.floor(Math.random() * ideas.length)];
+            const ideas = ["Seekor kucing ksatria berbaju zirah menunggangi naga kecil", "Kota metropolis masa depan melayang di atas awan", "Katak menggunakan jas hujan kuning di tengah hutan neon", "Perpustakaan sihir tak terbatas dengan buku beterbangan", "Mobil sport klasik balapan di cincin planet Saturnus"];
             const subjectEl = document.getElementById('subject');
-            subjectEl.value = randomSubject;
-            autoResize(subjectEl); // Otomatis besarkan kotak jika kalimatnya panjang
-            
-            // Random Style (0 sampai 12)
+            subjectEl.value = ideas[Math.floor(Math.random() * ideas.length)];
+            autoResize(subjectEl);
             const randomStyle = Math.floor(Math.random() * artData.length);
             document.getElementById('style').value = randomStyle;
-            updateLighting(); // Ini akan otomatis mengisi lighting list & trigger handleInput
-            
-            // Random Light 
+            updateLighting();
             setTimeout(() => {
                 const lightsOptions = document.getElementById('lighting').options;
                 if(lightsOptions.length > 1) {
-                    const randomLightIndex = Math.floor(Math.random() * (lightsOptions.length - 1)) + 1;
-                    document.getElementById('lighting').selectedIndex = randomLightIndex;
+                    document.getElementById('lighting').selectedIndex = Math.floor(Math.random() * (lightsOptions.length - 1)) + 1;
                     handleInput();
                 }
             }, 50);
         }
 
-        // FITUR BARU: Reset Form
         function resetForm() {
             const subjectEl = document.getElementById('subject');
             subjectEl.value = "";
-            subjectEl.style.height = 'auto'; // Kembalikan tinggi kotak ke ukuran aslinya
-
+            subjectEl.style.height = 'auto';
             document.getElementById('style').selectedIndex = 0;
             document.getElementById('lighting').innerHTML = '<option value="">-- Pilih Cahaya --</option>';
             document.getElementById('negative').value = "";
             document.getElementById('aspectRatio').selectedIndex = 0;
-            
-            if(currentMode === 'img2img'){
-               document.getElementById('imageUrl').value = "";
-               removeUpload(false);
-            }
-            
-            handleInput(); // Akan memicu tampilan default "Mulai mengetik..."
+            if(currentMode === 'img2img'){ document.getElementById('imageUrl').value = ""; removeUpload(false); }
+            handleInput();
         }
 
-        // 8. Logika Debounce (Tunggu selesai ngetik 1 detik sebelum proses)
         function handleInput() {
             clearTimeout(debounceTimer);
-            
             const subject = document.getElementById('subject').value.trim();
             if (subject === '') {
-                document.getElementById('result-prompt').innerHTML = "Mulai mengetik subjek, hasil prompt bahasa Inggris Anda akan muncul di sini...";
-                document.getElementById('result-prompt').className = "text-lg text-gray-500 min-h-[100px] break-words";
+                document.getElementById('result-prompt').innerHTML = "Mulai mengetik subjek...";
                 document.getElementById('status-indicator').classList.add('hidden');
                 document.getElementById('loading-indicator').classList.add('hidden');
                 return;
             }
-
-            // Tampilkan status "loading"
             document.getElementById('loading-indicator').classList.remove('hidden');
             document.getElementById('status-indicator').classList.add('hidden');
-            document.getElementById('result-prompt').className = "text-lg text-gray-400 min-h-[100px] break-words";
-
-            // Set timer 1 detik
-            debounceTimer = setTimeout(() => {
-                generatePrompt(subject);
-            }, 1000);
+            debounceTimer = setTimeout(() => { generatePrompt(subject); }, 1000);
         }
 
-        // 9. API Terjemahan dan Penyusunan Akhir
         async function generatePrompt(indonesianText) {
-            let translatedSubject = indonesianText; // Fallback default
-            
+            let translatedSubject = indonesianText;
             try {
-                // Memanggil API MyMemory Translation (Gratis)
                 const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(indonesianText)}&langpair=id|en`);
                 const data = await response.json();
-                
-                if (data && data.responseData && data.responseData.translatedText) {
+                // Jika API berhasil dan responsnya ada
+                if (data && data.responseData && data.responseData.translatedText && !data.responseData.translatedText.includes("MYMEMORY WARNING")) { 
                     translatedSubject = data.responseData.translatedText;
                 }
-            } catch (error) {
-                console.error("Gagal menerjemahkan, menggunakan bahasa asli.", error);
+            } catch (error) { 
+                console.warn("API Error, menggunakan teks asli.", error); 
             }
 
-            // Ambil semua data lainnya
             const imageUrl = document.getElementById('imageUrl').value.trim();
             const styleIndex = document.getElementById('style').value;
             const lighting = document.getElementById('lighting').value;
@@ -407,77 +333,28 @@
             const negativePrompt = document.getElementById('negative').value.trim();
 
             let promptParts = [];
-
-            // Urutan Prompt Image to Image
             if (currentMode === 'img2img') {
-                if (uploadedFileName !== '') {
-                    promptParts.push(uploadedFileName); // Masukkan link tiruan dari gambar
-                } else if (imageUrl !== '') {
-                    promptParts.push(imageUrl);
-                }
-                // Tambahkan kalimat referensi otomatis dalam bahasa Inggris
+                if (uploadedFileName !== '') promptParts.push(uploadedFileName); 
+                else if (imageUrl !== '') promptParts.push(imageUrl);
                 promptParts.push("use this image as a reference");
             }
-
-            // Subjek
             promptParts.push(translatedSubject);
+            if (styleIndex !== '') promptParts.push(artData[styleIndex].prompt);
+            if (lighting !== '') promptParts.push(lighting);
+            let finalPrompt = promptParts.join(', ') + ` ${aspectRatio}`;
+            if (negativePrompt !== '') finalPrompt += `\n\n--no ${negativePrompt}`;
 
-            // Style
-            if (styleIndex !== '') {
-                promptParts.push(artData[styleIndex].prompt);
-            }
-
-            // Lighting
-            if (lighting !== '') {
-                promptParts.push(lighting);
-            }
-
-            // Gabungkan menjadi teks
-            let finalPrompt = promptParts.join(', ');
-
-            // Tambahkan Aspect Ratio
-            finalPrompt += ` ${aspectRatio}`;
-
-            // Tambahkan Negative Prompt
-            if (negativePrompt !== '') {
-                finalPrompt += `\n\n--no ${negativePrompt}`; 
-                // Midjourney menggunakan parameter --no untuk negative prompt
-            }
-
-            // Tampilkan hasil
-            const resultElement = document.getElementById('result-prompt');
-            
-            // Highlight format agar mudah dibaca
-            const displayPrompt = finalPrompt.replace(/\n\n/g, '<br><br><span class="text-red-400 font-bold">Negative Prompt:</span> ');
-            resultElement.innerHTML = `<span class="text-white">${displayPrompt}</span>`;
-            
-            // Ubah Status Indicator
+            document.getElementById('result-prompt').innerHTML = `<span class="text-white">${finalPrompt.replace(/\n\n/g, '<br><br><span class="text-red-400 font-bold">Negative Prompt:</span> ')}</span>`;
             document.getElementById('loading-indicator').classList.add('hidden');
             document.getElementById('status-indicator').classList.remove('hidden');
         }
 
-        // 10. Copy Prompt
         function copyPrompt() {
-            let textToCopy = document.getElementById('result-prompt').innerText;
-            
-            // Hapus teks tambahan "Negative Prompt:" yang kita buat untuk indikator visual (karena Midjourney pakai --no)
-            textToCopy = textToCopy.replace(/Negative Prompt:\s*/g, '');
-
-            if (!textToCopy || textToCopy.includes("Mulai mengetik")) return;
-
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                const btn = document.querySelector('button[onclick="copyPrompt()"]');
-                const originalHTML = btn.innerHTML;
-                btn.innerHTML = "✅ Berhasil Disalin!";
-                btn.classList.replace('bg-blue-600', 'bg-green-600');
-                btn.classList.replace('hover:bg-blue-500', 'hover:bg-green-500');
-                
-                setTimeout(() => {
-                    btn.innerHTML = originalHTML;
-                    btn.classList.replace('bg-green-600', 'bg-blue-600');
-                    btn.classList.replace('hover:bg-green-500', 'hover:bg-blue-500');
-                }, 2000);
-            });
+            let textToCopy = document.getElementById('result-prompt').innerText.replace(/Negative Prompt:\s*/g, '');
+            navigator.clipboard.writeText(textToCopy);
+            const btn = document.querySelector('button[onclick="copyPrompt()"]');
+            btn.innerHTML = "✅ Berhasil Disalin!";
+            setTimeout(() => { btn.innerHTML = "Copy Prompt"; }, 2000);
         }
     </script>
 </body>
